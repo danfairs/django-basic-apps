@@ -19,7 +19,7 @@ urlpatterns = patterns('',
         view=blog_views.post_archive_year,
         name='blog_archive_year'),
 
-    url(r'^categories/(?P<slug>[-\w\.]+)/$',
+    url(r'^categories/(?P<slug>[-\w]+)/$',
         view=blog_views.category_detail,
         name='blog_category_detail'),
 
