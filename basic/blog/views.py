@@ -1,3 +1,6 @@
+import datetime
+import re
+
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import Http404
@@ -9,19 +12,14 @@ from tagging.models import Tag, TaggedItem
 from django.http import Http404
 from basic.blog.models import Settings
 
-import datetime
-import re
-
 
 def post_list(request, page=0, paginate_by=20, **kwargs):
-
-    page_size = Settings.get_current().page_size
-
+    page_size = getattr(settings,'BLOG_PAGESIZE', paginate_by)
     return list_detail.object_list(
         request,
-        queryset = Post.objects.published(),
-        paginate_by = page_size,
-        page = page,
+        queryset=Post.objects.published(),
+        paginate_by=page_size,
+        page=page,
         **kwargs
     )
 post_list.__doc__ = list_detail.object_list.__doc__
@@ -30,10 +28,10 @@ post_list.__doc__ = list_detail.object_list.__doc__
 def post_archive_year(request, year, **kwargs):
     return date_based.archive_year(
         request,
-        year = year,
-        date_field = 'publish',
-        queryset = Post.objects.published(),
-        make_object_list = True,
+        year=year,
+        date_field='publish',
+        queryset=Post.objects.published(),
+        make_object_list=True,
         **kwargs
     )
 post_archive_year.__doc__ = date_based.archive_year.__doc__
@@ -42,10 +40,10 @@ post_archive_year.__doc__ = date_based.archive_year.__doc__
 def post_archive_month(request, year, month, **kwargs):
     return date_based.archive_month(
         request,
-        year = year,
-        month = month,
-        date_field = 'publish',
-        queryset = Post.objects.published(),
+        year=year,
+        month=month,
+        date_field='publish',
+        queryset=Post.objects.published(),
         **kwargs
     )
 post_archive_month.__doc__ = date_based.archive_month.__doc__
@@ -54,43 +52,34 @@ post_archive_month.__doc__ = date_based.archive_month.__doc__
 def post_archive_day(request, year, month, day, **kwargs):
     return date_based.archive_day(
         request,
-        year = year,
-        month = month,
-        day = day,
-        date_field = 'publish',
-        queryset = Post.objects.published(),
+        year=year,
+        month=month,
+        day=day,
+        date_field='publish',
+        queryset=Post.objects.published(),
         **kwargs
     )
 post_archive_day.__doc__ = date_based.archive_day.__doc__
 
 
 def post_detail(request, slug, year, month, day, **kwargs):
-    '''
-    Displays post detail. If user is superuser, view will display
+    """
+    Displays post detail. If user is superuser, view will display 
     unpublished post detail for previewing purposes.
-
-    '''
-
-
-    #grab the post and update view count
-    from django.db.models import F
-    post = Post.objects.get(slug=slug)
-
-
-    if not request.user.is_superuser and post.status != 2:
-        raise Http404
-
-    post.visits = F('visits') + 1
-    post.save()
-
+    """
+    posts = None
+    if request.user.is_superuser:
+        posts = Post.objects.all()
+    else:
+        posts = Post.objects.published()
     return date_based.object_detail(
         request,
-        year = year,
-        month = month,
-        day = day,
-        date_field = 'publish',
-        slug = slug,
-        queryset = Post.objects.all(),
+        year=year,
+        month=month,
+        day=day,
+        date_field='publish',
+        slug=slug,
+        queryset=posts,
         **kwargs
     )
 post_detail.__doc__ = date_based.object_detail.__doc__
@@ -107,10 +96,11 @@ def category_list(request, template_name = 'blog/category_list.html', **kwargs):
     """
     return list_detail.object_list(
         request,
-        queryset = Category.objects.all(),
-        template_name = template_name,
+        queryset=Category.objects.all(),
+        template_name=template_name,
         **kwargs
     )
+
 
 def category_detail(request, slug, template_name = 'blog/category_detail.html', **kwargs):
     """
@@ -127,9 +117,9 @@ def category_detail(request, slug, template_name = 'blog/category_detail.html', 
 
     return list_detail.object_list(
         request,
-        queryset = category.post_set.published(),
-        extra_context = {'category': category},
-        template_name = template_name,
+        queryset=category.post_set.published(),
+        extra_context={'category': category},
+        template_name=template_name,
         **kwargs
     )
 
@@ -149,9 +139,9 @@ def tag_detail(request, slug, template_name = 'blog/tag_detail.html', **kwargs):
 
     return list_detail.object_list(
         request,
-        queryset = TaggedItem.objects.get_by_model(Post,tag).filter(status=2),
-        extra_context = {'tag': tag},
-        template_name = template_name,
+        queryset=TaggedItem.objects.get_by_model(Post,tag).filter(status=2),
+        extra_context={'tag': tag},
+        template_name=template_name,
         **kwargs
     )
 
@@ -199,7 +189,7 @@ def search(request, template_name='blog/post_search.html'):
         cleaned_search_term = stop_word_list.sub('', search_term)
         cleaned_search_term = cleaned_search_term.strip()
         if len(cleaned_search_term) != 0:
-            post_list = Post.objects.published().filter(Q(body__icontains=cleaned_search_term) | Q(tags__icontains=cleaned_search_term) | Q(categories__title__icontains=cleaned_search_term))
+            post_list = Post.objects.published().filter(Q(title__icontains=cleaned_search_term) | Q(body__icontains=cleaned_search_term) | Q(tags__icontains=cleaned_search_term) | Q(categories__title__icontains=cleaned_search_term))
             context = {'object_list': post_list, 'search_term':search_term}
         else:
             message = 'Search term was too vague. Please try again.'

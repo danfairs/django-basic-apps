@@ -9,16 +9,13 @@ import tagging
 
 class PlaceType(models.Model):
     """Place types model."""
-    title         = models.CharField(_('title'), max_length=100, unique=True)
-    slug          = models.SlugField(_('slug'), unique=True)
+    title = models.CharField(_('title'), max_length=100, unique=True)
+    slug = models.SlugField(_('slug'), unique=True)
 
     class Meta:
         verbose_name = _('place type')
         verbose_name_plural = _('place types')
         db_table = 'place_types'
-
-    class Admin:
-        pass
 
     def __unicode__(self):
         return u'%s' % self.title
@@ -30,9 +27,9 @@ class PlaceType(models.Model):
 
 class City(models.Model):
     """City model."""
-    city          = models.CharField(_('city'), max_length=100)
-    state         = models.CharField(_('state'), max_length=100)
-    slug          = models.SlugField(_('slug'), unique=True)
+    city = models.CharField(_('city'), max_length=100)
+    state = models.CharField(_('state'), max_length=100)
+    slug = models.SlugField(_('slug'), unique=True)
 
     class Meta:
         verbose_name = _('city')
@@ -40,9 +37,6 @@ class City(models.Model):
         db_table = 'place_cities'
         unique_together = (('city', 'state',),)
         ordering = ('state', 'city',)
-
-    class Admin:
-       pass
 
     def __unicode__(self):
         return u'%s, %s' % (self.city, self.state)
@@ -54,23 +48,18 @@ class City(models.Model):
 
 class Point(models.Model):
     """Point model."""
-    latitude      = models.FloatField(_('latitude'), blank=True, null=True)
-    longitude     = models.FloatField(_('longitude'), blank=True, null=True)
-    address       = models.CharField(_('address'), max_length=200, blank=True)
-    city          = models.ForeignKey(City)
-    zip           = models.CharField(_('zip'), max_length=10, blank=True)
-    country       = models.CharField(_('country'), blank=True, max_length=100)
+    latitude = models.FloatField(_('latitude'), blank=True, null=True)
+    longitude = models.FloatField(_('longitude'), blank=True, null=True)
+    address = models.CharField(_('address'), max_length=200, blank=True)
+    city = models.ForeignKey(City)
+    zip = models.CharField(_('zip'), max_length=10, blank=True)
+    country = models.CharField(_('country'), blank=True, max_length=100)
 
     class Meta:
         verbose_name = _('point')
         verbose_name_plural = _('points')
         db_table = 'place_points'
         ordering = ('address',)
-
-    class Admin:
-        list_display  = ('address', 'city', 'zip', 'latitude', 'longitude')
-        list_filter   = ('city',)
-        search_fields = ('address',)
 
     def __unicode__(self):
         return u'%s' % self.address
@@ -82,32 +71,27 @@ class Place(models.Model):
         (0, 'Inactive'),
         (1, 'Active'),
     )
-    point         = models.ForeignKey(Point)
-    prefix        = models.CharField(_('Pre-name'), blank=True, max_length=20)
-    title         = models.CharField(_('title'), max_length=255)
-    slug          = models.SlugField(_('slug'))
-    nickname      = models.CharField(_('nickname'), blank=True, max_length=100)
-    unit          = models.CharField(_('unit'), blank=True, max_length=100, help_text='Suite or Apartment #')
-    phone         = PhoneNumberField(_('phone'), blank=True)
-    url           = models.URLField(_('url'), blank=True, verify_exists=False)
-    email         = models.EmailField(_('email'), blank=True)
-    description   = models.TextField(_('description'), blank=True)
-    status        = models.IntegerField(_('status'), choices=STATUS_CHOICES, default=1)
-    created       = models.DateTimeField(auto_now_add=True)
-    modified      = models.DateTimeField(auto_now=True)
-    place_types   = models.ManyToManyField(PlaceType, blank=True)
-    tags          = TagField()
+    point = models.ForeignKey(Point)
+    prefix = models.CharField(_('Pre-name'), blank=True, max_length=20)
+    title = models.CharField(_('title'), max_length=255)
+    slug = models.SlugField(_('slug'))
+    nickname = models.CharField(_('nickname'), blank=True, max_length=100)
+    unit = models.CharField(_('unit'), blank=True, max_length=100, help_text='Suite or Apartment #')
+    phone = PhoneNumberField(_('phone'), blank=True)
+    url = models.URLField(_('url'), blank=True, verify_exists=False)
+    email = models.EmailField(_('email'), blank=True)
+    description = models.TextField(_('description'), blank=True)
+    status = models.IntegerField(_('status'), choices=STATUS_CHOICES, default=1)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    place_types = models.ManyToManyField(PlaceType, blank=True)
+    tags = TagField()
 
     class Meta:
         verbose_name = _('place')
         verbose_name_plural = _('places')
         db_table = 'places'
         ordering = ('title',)
-
-    class Admin:
-        list_display = ('title', 'point', 'city', 'status')
-        list_filter = ('status', 'place_types')
-        search_fields = ('title',)
 
     def __unicode__(self):
         return u'%s' % self.full_title

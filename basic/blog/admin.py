@@ -4,7 +4,6 @@ from basic.blog.models import *
 
 class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
-
 admin.site.register(Category, CategoryAdmin)
 
 class PostAdmin(admin.ModelAdmin):
@@ -25,6 +24,7 @@ class PostAdmin(admin.ModelAdmin):
             }),
 
         )
+admin.site.register(Post, PostAdmin)
 
 class SettingsAdmin(admin.ModelAdmin):
 
@@ -39,13 +39,8 @@ class SettingsAdmin(admin.ModelAdmin):
                 'fields': ('meta_keywords', 'meta_description', ),
             }),
 
-        )
 
 class BlogRollAdmin(admin.ModelAdmin):
-
-    list_display = ('name', 'url', 'sort_order', )
+    list_display = ('name', 'url', 'sort_order',)
     list_editable = ('sort_order',)
-
-admin.site.register(Post, PostAdmin)
-admin.site.register(Settings, SettingsAdmin)
-admin.site.register(BlogRoll, BlogRollAdmin)
+admin.site.register(BlogRoll)

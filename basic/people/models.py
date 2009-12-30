@@ -20,9 +20,6 @@ class PersonType(models.Model):
         db_table = 'people_types'
         ordering = ('title',)
 
-    class Admin:
-        pass
-
     def __unicode__(self):
         return '%s' % self.title
 
@@ -37,27 +34,23 @@ class Person(models.Model):
         (1, 'Male'),
         (2, 'Female'),
     )
-    first_name        = models.CharField(_('first name'), blank=True, max_length=100)
-    middle_name       = models.CharField(_('middle name'), blank=True, max_length=100)
-    last_name         = models.CharField(_('last name'), blank=True, max_length=100)
-    slug              = models.SlugField(_('slug'), unique=True)
-    user              = models.ForeignKey(User, blank=True, null=True, help_text='If the person is an existing user of your site.')
-    gender            = models.PositiveSmallIntegerField(_('gender'), choices=GENDER_CHOICES, blank=True, null=True)
-    mugshot           = models.FileField(_('mugshot'), upload_to='mugshots', blank=True)
-    mugshot_credit    = models.CharField(_('mugshot credit'), blank=True, max_length=200)
-    birth_date        = models.DateField(_('birth date'), blank=True, null=True)
-    person_types      = models.ManyToManyField(PersonType, blank=True)
-    website           = models.URLField(_('website'), blank=True, verify_exists=True)
+    first_name = models.CharField(_('first name'), blank=True, max_length=100)
+    middle_name = models.CharField(_('middle name'), blank=True, max_length=100)
+    last_name = models.CharField(_('last name'), blank=True, max_length=100)
+    slug = models.SlugField(_('slug'), unique=True)
+    user = models.ForeignKey(User, blank=True, null=True, help_text='If the person is an existing user of your site.')
+    gender = models.PositiveSmallIntegerField(_('gender'), choices=GENDER_CHOICES, blank=True, null=True)
+    mugshot = models.FileField(_('mugshot'), upload_to='mugshots', blank=True)
+    mugshot_credit = models.CharField(_('mugshot credit'), blank=True, max_length=200)
+    birth_date = models.DateField(_('birth date'), blank=True, null=True)
+    person_types = models.ManyToManyField(PersonType, blank=True)
+    website = models.URLField(_('website'), blank=True, verify_exists=True)
 
     class Meta:
         verbose_name = _('person')
         verbose_name_plural = _('people')
         db_table = 'people'
         ordering = ('last_name', 'first_name',)
-
-    class Admin:
-        list_filter = ('person_types',)
-        search_fields = ('first_name', 'last_name')
 
     def __unicode__(self):
         return u'%s' % self.full_name
@@ -78,38 +71,26 @@ class Person(models.Model):
 
 class Quote(models.Model):
     """Quote model."""
-    person            = models.ForeignKey(Person)
-    quote             = models.TextField(_('quote'))
-    source            = models.CharField(_('source'), blank=True, max_length=255)
-    title = models.CharField(max_length=100, blank=False, null=False)
-    slug = models.SlugField(_('slug'), unique=True)
-    tags = TagField()
-    publish         = models.DateTimeField(_('publish'), default=datetime.datetime.now)
-    
+    person = models.ForeignKey(Person)
+    quote = models.TextField(_('quote'))
+    source = models.CharField(_('source'), blank=True, max_length=255)
+
     class Meta:
         verbose_name = 'quote'
         verbose_name_plural = 'quotes'
         db_table = 'people_quotes'
 
-    class Admin:
-        list_display = ('person','quote')
-        list_filter = ('person',)
-        search_fields = ('quote',)
-        
     def __unicode__(self):
-        return u'%s' % self.title
+        return u'%s' % self.quote
 
     @permalink
     def get_absolute_url(self):
-        return ('quote_detail', None, {'slug': self.slug})
+        return ('quote_detail', None, {'quote_id': self.pk})
 
 
 class Conversation(models.Model):
     """A conversation between two or many people."""
     title = models.CharField(blank=True, max_length=200)
-
-    class Admin:
-        pass
 
     def __unicode__(self):
         return self.title

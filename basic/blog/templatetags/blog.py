@@ -1,8 +1,8 @@
+import re
+
 from django import template
 from django.conf import settings
 from django.db import models
-
-import re
 
 Post = models.get_model('blog', 'post')
 Category = models.get_model('blog', 'category')
@@ -13,16 +13,17 @@ register = template.Library()
 
 class LatestPosts(template.Node):
     def __init__(self, limit, var_name):
-        self.limit = limit
+        self.limit = int(limit)
         self.var_name = var_name
 
     def render(self, context):
-        posts = Post.objects.published()[:int(self.limit)]
-        if posts and (int(self.limit) == 1):
+        posts = Post.objects.published()[:self.limit]
+        if posts and (self.limit == 1):
             context[self.var_name] = posts[0]
         else:
             context[self.var_name] = posts
         return ''
+
 
 @register.tag
 def get_latest_posts(parser, token):
@@ -92,6 +93,7 @@ class BlogCategories(template.Node):
         categories = Category.objects.all()
         context[self.var_name] = categories
         return ''
+
 
 @register.tag
 def get_blog_categories(parser, token):
